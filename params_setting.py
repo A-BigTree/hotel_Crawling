@@ -17,7 +17,7 @@ URL_BOOKING = "https://www.booking.cn/searchresults.zh-cn.html"
 # -------------Parameters Setting
 
 PARAMS_URL = {
-    "aid": 397645,
+    "aid": 397645,  # update
     "ss": None,  # City name
     "lang": "zh-cn",  # Language
     "sb": 1,
@@ -27,7 +27,7 @@ PARAMS_URL = {
     "no_rooms": 1,
     "group_children": 0,
     "sb_travel_purpose": "leisure",
-    "offset": 0   # Page
+    "offset": 0  # Page
 }
 """Parameters using in query URL"""
 
@@ -39,14 +39,18 @@ PARAMS_REQUEST = {
 
 # ---------------XPath
 
-XPATH_HOTEL_NUM = "/html/body/div[3]/div/div[5]/div[1]/div[1]/div[4]/div[2]/div[2]/div/div/div[3]/div"
-"""The number of hotels in this page"""
+XPATH_HOTEL_PAGE_NUM = "//*[@id='search_results_table']/div[2]/div/div/div[4]/div[2]/nav/div/div[" \
+                       "2]/ol//li/button/text()"
+"""The number of hotels' page"""
 
-XPATH_HOTEL_NAME = "/html/body/div[3]/div/div[5]/div[1]/div[1]/div[4]/div[2]/div[2]/div/div/div[3]/div[%d]/div[" \
+XPATH_HOTEL_NAME = "/html/body/div[3]/div/div[5]/div[1]/div[1]/div[4]/div[2]/div[2]/div/div/div[3]//div/div[" \
                    "1]/div[2]/div/div/div/div[1]/div/div[1]/div/h3/a/div[1]/text()"
 """The name of `No.%d` hotel"""
 
-XPATH_HOTEL_HREF = "/html/body/div[3]/div/div[5]/div[1]/div[1]/div[4]/div[2]/div[2]/div/div/div[3]/div[%d]/div[" \
+XPATH_HOTEL_POINT = "/html/body/div[3]/div/div[5]/div[1]/div[1]/div[4]/div[2]/div[2]/div/div/div[3]//div/div[" \
+                    "1]/div[2]/div/div/div/div[2]/div/div[1]/div/a/span/div/div[1]/text()"
+
+XPATH_HOTEL_HREF = "/html/body/div[3]/div/div[5]/div[1]/div[1]/div[4]/div[2]/div[2]/div/div/div[3]//div/div[" \
                    "1]/div[2]/div/div/div/div[1]/div/div[1]/div/h3/a/@href"
 """The link of `No.%d` hotel page"""
 
@@ -72,6 +76,7 @@ XPATH_HOTEL_CAPACITY = "/html/body/div[2]/div/div[6]/div[1]/div[1]/div[3]/div/di
                        "2]/div/div/@aria-label"
 """The capacity of rooms"""
 
+
 # --------------------Init Processing
 
 
@@ -80,7 +85,7 @@ def init_params_request():
     for key in PARAMS_REQUEST.keys():
         try:
             with open("data/" + key.lower() + ".txt", encoding='utf-8') as f:
-                PARAMS_REQUEST[key] = f.readline()
+                PARAMS_REQUEST[key] = f.readline().encode('utf-8').decode('latin1')
         except Exception as e:
             print(e)
-            raise RuntimeError("初始化错误.")
+            raise RuntimeError("Init process error.")
