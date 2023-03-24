@@ -6,17 +6,54 @@
 # @version : V1.0 
 #
 
-CITY_NAME = ['北京', '广东', '山东', '江苏', '河南', '上海', '河北', '浙江', '香港', '陕西', '湖南', '重庆', '福建',
-             '天津', '云南', '四川', '广西', '安徽', '海南', '江西', '湖北', '山西', '辽宁', '台湾', '黑龙', '内蒙古',
-             '澳门', '贵州', '甘肃', '青海', '新疆', '西藏', '吉林', '宁夏']
+CITY_NAME = ['北京地区', '广东', '山东', '江苏', '河南', '上海地区', '河北', '浙江', '中国香港', '陕西', '湖南', '重庆地区',
+             '福建', '天津地区', '云南', '四川', '广西', '安徽', '海南', '江西', '湖北', '山西', '辽宁', '黑龙江', '内蒙古',
+             '澳门', '贵州', '甘肃', '青海', '新疆', '中国，西藏', '吉林', '宁夏']
 """Cities' name using in querying"""
+
+CITY_NAME_DEST_ID_DICT = {
+    "北京地区": 1221,
+    "陕西": 685,
+    "山东": 686,
+    "天津地区": 684,
+    "江苏": 683,
+    "湖北": 682,
+    "河南": 681,
+    "海南": 680,
+    "广西": 679,
+    "广东": 678,
+    "福建": 677,
+    "重庆地区": 676,
+    "安徽": 675,
+    "上海": 3245,
+    "河北": 3698,
+    "浙江": 3243,
+    "云南": 3244,
+    "山西": 3246,
+    "吉林": 3242,
+    "中国香港": 95,
+    "湖南": 3699,
+    "四川": 3705,
+    "江西": 3700,
+    "辽宁": 3701,
+    "内蒙古": 3702,
+    "宁夏": 3703,
+    "青海": 3704,
+    "新疆": 3706,
+    "中国，西藏": 3707,
+    "甘肃": 3697,
+    "黑龙江": 3696,
+    "中国澳门": 124,
+    "贵州": 4915,
+}
+"""Mapping for city name to destID in Booking"""
 
 URL_BOOKING = "https://www.booking.cn/searchresults.zh-cn.html"
 """URL using in query"""
 
 # -------------Parameters Setting
 
-PARAMS_URL = {
+PARAMS_URL_CITY_NAME = {
     "aid": 397645,  # update
     "ss": None,  # City name
     "lang": "zh-cn",  # Language
@@ -29,7 +66,23 @@ PARAMS_URL = {
     "sb_travel_purpose": "leisure",
     "offset": 0  # Page
 }
-"""Parameters using in query URL"""
+"""Parameters using city name in query URL"""
+
+PARAMS_URL_CITY_ID = {
+    "aid": 397645,
+    "lang": "zh-cn",
+    "sb": 1,
+    "src_elem": "sb",
+    "src": "searchresults",
+    "dest_id": None,
+    "dest_type": "region",
+    "group_adults": 2,
+    "no_rooms": 1,
+    "group_children": 0,
+    "sb_travel_purpose": "leisure",
+    "offset": 0  # Page
+}
+"""Parameters using city ID in query URL"""
 
 PARAMS_REQUEST = {
     "User-Agent": None,
