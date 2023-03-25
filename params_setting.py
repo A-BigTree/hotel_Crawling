@@ -66,34 +66,36 @@ XPATH_HOTEL_PAGE_NUM = "//*[@id='search_results_table']/div[2]/div/div/div[4]/di
 XPATH_HOTEL_PAGE_TITLE = "//*[@id='right']/div[1]/div/div/div/h1/text()"
 """The title in this page"""
 
-XPATH_HOTEL_NAME = "//*[@id='search_results_table']/div[2]/div/div/div[3]//div/div[1]/div[2]/div/div/div/div[" \
+XPATH_HOTEL_PAGE_NAME = "//*[@id='search_results_table']/div[2]/div/div/div[3]//div/div[1]/div[2]/div/div/div/div[" \
                    "1]/div/div[1]/div/h3/a/div[1]/text()"
 """The name of hotel in the page"""
 
-XPATH_HOTEL_HREF = "//*[@id='search_results_table']/div[2]/div/div/div[3]//div/div[1]/div[2]/div/div/div/div[" \
+XPATH_HOTEL_PAGE_HREF = "//*[@id='search_results_table']/div[2]/div/div/div[3]//div/div[1]/div[2]/div/div/div/div[" \
                    "1]/div/div[1]/div/h3/a/@href"
 """The link of hotel in the link"""
 
-XPATH_HOTEL_CITY = "/html/body/div[2]/div/div[1]/div/nav/ol//li/div/a/text()"
+XPATH_HOTEL_CITY = "//*[@id='breadcrumb']/ol//li/div/a/text()"
 """The city of the hotel"""
 
-XPATH_HOTEL_ADDRESS = "/html/body/div[2]/div/div[6]/div[1]/div[1]/div[1]/div/div[2]/div[9]/p/span[1]/text()"
+XPATH_HOTEL_NAME = "//*[@id='hp_hotel_name']/div/h2/text()"
+"""The name of hotel"""
+
+XPATH_HOTEL_ADDRESS = "//*[@id='showMap2']/span/text()"
 """The address of the hotel"""
 
-XPATH_HOTEL_IMAGES = "/html/body/div[2]/div/div[6]/div[1]/div[1]/div[1]/div/div[2]/div[11]/div/div/div[1]/div[" \
-                     "6]/div/div//a/img/@src"
+XPATH_HOTEL_POINT = "//*[@id='js--hp-gallery-scorecard']/a/div/div/div/div[1]/text()"
+"""The point of the hotel"""
+
+XPATH_HOTEL_IMAGES = "//*[@id='hotel_main_content']/div/div[1]/div[6]/div//div/a/img/@src"
 """The images of the hotel"""
 
-XPATH_HOTEL_DESC = "/html/body/div[2]/div/div[6]/div[1]/div[1]/div[2]/div/div/div[1]/div[1]/div[1]/div[1]/div[3]/p[" \
-                   "2]/text()"
+XPATH_HOTEL_DESC = "//*[@id='property_description_content']//p/text()"
 """The description of the hotel"""
 
-XPATH_HOTEL_ROOM = "/html/body/div[2]/div/div[6]/div[1]/div[1]/div[3]/div/div[5]/div[3]/div[7]/section//div/div[" \
-                   "1]/div[1]/a/span/text()"
+XPATH_HOTEL_ROOM = "//*[@id='rooms_table']/div[3]/section//div/div[1]/div[1]/a/span/text()"
 """The names of configure rooms"""
 
-XPATH_HOTEL_CAPACITY = "/html/body/div[2]/div/div[6]/div[1]/div[1]/div[3]/div/div[5]/div[3]/div[7]/section//div/div[" \
-                       "2]/div/div/@aria-label"
+XPATH_HOTEL_CAPACITY = "//*[@id='rooms_table']/div[3]/section//div/div[2]/div/div/@aria-label"
 """The capacity of rooms"""
 
 
