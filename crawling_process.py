@@ -54,15 +54,18 @@ def get_city_hotel(city_info: dict):
         response = get_response(url=URL_BOOKING,
                                 params=PARAMS_URL_CITY_ID)
         results = xpath_analysis(response=response,
-                                 xpath_=[XPATH_HOTEL_PAGE_NAME, XPATH_HOTEL_PAGE_HREF])
+                                 xpath_=[XPATH_HOTEL_PAGE_NAME,
+                                         XPATH_HOTEL_PAGE_HREF,
+                                         XPATH_HOTEL_PAGE_IMAGE])
         hotel_names = results[XPATH_HOTEL_PAGE_NAME]
         hotel_hrefs = results[XPATH_HOTEL_PAGE_HREF]
+        hotel_image = results[XPATH_HOTEL_PAGE_IMAGE]
         print(f"Page hotel num: {len(hotel_names)}")
         csv_list = list()
         for j in range(len(hotel_names)):
-            csv_list.append([hotel_names[j], hotel_hrefs[j], city_name, offset])
+            csv_list.append([hotel_names[j], hotel_hrefs[j], city_name, offset, hotel_image[j]])
         offset += len(hotel_names)
-        write_csv(file_name="data/hotels.csv",
+        write_csv(file_name="data/hotels_v2.csv",
                   data=csv_list)
         print()
         time.sleep(3)
@@ -78,36 +81,43 @@ def get_all_city_hotel():
 def get_hotel_info(url_hotel: str) -> dict:
     """Get a hotel information to dict data"""
     response = get_response(url_hotel)
+    print(response.url)
     results = xpath_analysis(response=response,
                              xpath_=[XPATH_HOTEL_CITY,
                                      XPATH_HOTEL_NAME,
                                      XPATH_HOTEL_ADDRESS,
                                      XPATH_HOTEL_POINT,
                                      XPATH_HOTEL_IMAGES,
-                                     XPATH_HOTEL_DESC])
+                                     XPATH_HOTEL_DESC,
+                                     XPATH_HOTEL_STAR])
     city = results[XPATH_HOTEL_CITY]
     name = results[XPATH_HOTEL_NAME]
     address = results[XPATH_HOTEL_ADDRESS]
     point = results[XPATH_HOTEL_POINT]
     images = results[XPATH_HOTEL_IMAGES]
     desc = results[XPATH_HOTEL_DESC]
+    star = len(results[XPATH_HOTEL_STAR])
     result_dict = {
-        "name": name[0],
+        "name": name[0].strip("\n"),
+        "star": star,
         "city": {
-            "mun": city[-1].strip('\n'),
-            "pro": city[-2].strip('\n')
+            "mun": "",
+            "pro": ""
         },
         "addr": "null",
         "point": "null",
         "images": images,
         "desc": ""
     }
+    for i in range(len(city)):
+        city[i] = city[i].strip('\n')
+    result_dict["city"]["pro"] = city[2]
+    result_dict["city"]["mun"] = "，".join(city[3::])
     if len(address) > 0:
         result_dict['addr'] = address[0].strip('\n')
     if len(point) > 0:
         result_dict['point'] = point[0]
-    for de in desc:
-        result_dict['desc'] += (de + '\n')
+    result_dict['desc'] = "\n".join(desc)
     return result_dict
 
 
@@ -121,7 +131,6 @@ BATCH_SETTING = 100
 def get_all_hotel_info():
     """Get all information start by `Index_START`"""
     start = INDEX_START
-    index_ = INDEX_START
     while True:
         read_data = read_csv(file_name="data/hotels.csv",
                              batch=(start, start + BATCH_SETTING))
@@ -130,13 +139,14 @@ def get_all_hotel_info():
             break
         for data_ in read_data:
             href = data_[1]
+            index_ = data_[-1]
             result_dict = get_hotel_info(href)
-            print(f"Index: {index_}, Hotel: {result_dict['name']}")
-            print(f"City: ({result_dict['city']['pro']}, {result_dict['city']['mun']})")
+            print(f"Index: {index_}, Hotel: {result_dict['name']}, Star: {result_dict['star']}")
+            print(f"City: ({result_dict['city']['pro']}, [{result_dict['city']['mun']}])")
             write_csv("data/info/info.csv",
                       [[index_, result_dict['name'], result_dict['city']['pro'], result_dict['city']['mun'],
-                        result_dict['addr'], result_dict['point'], len(result_dict['images']), href]])
-            print(f"Desc length: char{len(result_dict['desc'])}")
+                        result_dict['addr'], result_dict['point'], len(result_dict['images']), result_dict['star']]])
+            print(f"Desc length: char({len(result_dict['desc'])})")
             write_csv("data/info/desc.csv",
                       [[index_, result_dict['desc']]])
             print(f"Images number: {len(result_dict['images'])}")
@@ -145,9 +155,8 @@ def get_all_hotel_info():
                 image_li.append([index_, image])
             if len(image_li) > 0:
                 write_csv("data/info/image.csv", image_li)
-            index_ += 1
             print()
-            time.sleep(1)
+        time.sleep(10)
 
 
 if __name__ == "__main__":

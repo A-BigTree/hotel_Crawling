@@ -74,6 +74,12 @@ XPATH_HOTEL_PAGE_HREF = "//*[@id='search_results_table']/div[2]/div/div/div[3]//
                    "1]/div/div[1]/div/h3/a/@href"
 """The link of hotel in the link"""
 
+XPATH_HOTEL_PAGE_IMAGE = "//*[@id='search_results_table']/div[2]/div/div/div[3]//div/div[1]/div[1]/div/a/img/@src"
+"""The image of hotel in the page"""
+
+XPATH_HOTEL_STAR = "//*[@id='hp_hotel_name']/span/span[2]/div/span/div/span//span"
+"""The star of hotel"""
+
 XPATH_HOTEL_CITY = "//*[@id='breadcrumb']/ol//li/div/a/text()"
 """The city of the hotel"""
 
@@ -86,7 +92,7 @@ XPATH_HOTEL_ADDRESS = "//*[@id='showMap2']/span/text()"
 XPATH_HOTEL_POINT = "//*[@id='js--hp-gallery-scorecard']/a/div/div/div/div[1]/text()"
 """The point of the hotel"""
 
-XPATH_HOTEL_IMAGES = "//*[@id='hotel_main_content']/div/div[1]/div[6]/div//div/a/img/@src"
+XPATH_HOTEL_IMAGES = "//*[@id='hotel_main_content']//a/img/@src"
 """The images of the hotel"""
 
 XPATH_HOTEL_DESC = "//*[@id='property_description_content']//p/text()"
