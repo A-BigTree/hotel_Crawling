@@ -5,48 +5,15 @@
 # @function: parameters using for crawling
 # @version : V1.0 
 #
+import csv
 
-CITY_NAME = ['北京地区', '广东', '山东', '江苏', '河南', '上海地区', '河北', '浙江', '中国香港', '陕西', '湖南', '重庆地区',
-             '福建', '天津地区', '云南', '四川', '广西', '安徽', '海南', '江西', '湖北', '山西', '辽宁', '黑龙江', '内蒙古',
-             '澳门', '贵州', '甘肃', '青海', '新疆', '中国，西藏', '吉林', '宁夏']
-"""Cities' name using in querying"""
+from typing import Tuple
 
-CITY_NAME_DEST_ID_DICT = {
-    "北京地区": 1221,
-    "陕西": 685,
-    "山东": 686,
-    "天津地区": 684,
-    "江苏": 683,
-    "湖北": 682,
-    "河南": 681,
-    "海南": 680,
-    "广西": 679,
-    "广东": 678,
-    "福建": 677,
-    "重庆地区": 676,
-    "安徽": 675,
-    "上海": 3245,
-    "河北": 3698,
-    "浙江": 3243,
-    "云南": 3244,
-    "山西": 3246,
-    "吉林": 3242,
-    "中国香港": 95,
-    "湖南": 3699,
-    "四川": 3705,
-    "江西": 3700,
-    "辽宁": 3701,
-    "内蒙古": 3702,
-    "宁夏": 3703,
-    "青海": 3704,
-    "新疆": 3706,
-    "中国，西藏": 3707,
-    "甘肃": 3697,
-    "黑龙江": 3696,
-    "中国澳门": 124,
-    "贵州": 4915,
+CITY_INFO = {
+    "city_num": 0,
+    "city_list": []
 }
-"""Mapping for city name to destID in Booking"""
+"""The dict of cities' information"""
 
 URL_BOOKING = "https://www.booking.cn/searchresults.zh-cn.html"
 """URL using in query"""
@@ -96,16 +63,16 @@ XPATH_HOTEL_PAGE_NUM = "//*[@id='search_results_table']/div[2]/div/div/div[4]/di
                        "2]/ol//li/button/text()"
 """The number of hotels' page"""
 
-XPATH_HOTEL_NAME = "/html/body/div[3]/div/div[5]/div[1]/div[1]/div[4]/div[2]/div[2]/div/div/div[3]//div/div[" \
-                   "1]/div[2]/div/div/div/div[1]/div/div[1]/div/h3/a/div[1]/text()"
-"""The name of `No.%d` hotel"""
+XPATH_HOTEL_PAGE_TITLE = "//*[@id='right']/div[1]/div/div/div/h1/text()"
+"""The title in this page"""
 
-XPATH_HOTEL_POINT = "/html/body/div[3]/div/div[5]/div[1]/div[1]/div[4]/div[2]/div[2]/div/div/div[3]//div/div[" \
-                    "1]/div[2]/div/div/div/div[2]/div/div[1]/div/a/span/div/div[1]/text()"
+XPATH_HOTEL_NAME = "//*[@id='search_results_table']/div[2]/div/div/div[3]//div/div[1]/div[2]/div/div/div/div[" \
+                   "1]/div/div[1]/div/h3/a/div[1]/text()"
+"""The name of hotel in the page"""
 
-XPATH_HOTEL_HREF = "/html/body/div[3]/div/div[5]/div[1]/div[1]/div[4]/div[2]/div[2]/div/div/div[3]//div/div[" \
-                   "1]/div[2]/div/div/div/div[1]/div/div[1]/div/h3/a/@href"
-"""The link of `No.%d` hotel page"""
+XPATH_HOTEL_HREF = "//*[@id='search_results_table']/div[2]/div/div/div[3]//div/div[1]/div[2]/div/div/div/div[" \
+                   "1]/div/div[1]/div/h3/a/@href"
+"""The link of hotel in the link"""
 
 XPATH_HOTEL_CITY = "/html/body/div[2]/div/div[1]/div/nav/ol//li/div/a/text()"
 """The city of the hotel"""
@@ -130,6 +97,38 @@ XPATH_HOTEL_CAPACITY = "/html/body/div[2]/div/div[6]/div[1]/div[1]/div[3]/div/di
 """The capacity of rooms"""
 
 
+def write_csv(file_name: str, data: list, encoding: str = 'utf-8'):
+    """Write 2D data to csv file"""
+    try:
+        with open(file_name, 'a', encoding=encoding, newline='') as f:
+            writer = csv.writer(f)
+            for da in data:
+                writer.writerow(da)
+    except Exception as e:
+        print(e)
+        print(f"File:{file_name}, Write Failed")
+
+
+def read_csv(file_name: str, batch: Tuple[int, int] = None, encoding: str = 'utf-8') -> list:
+    """Read 2D data from csv file"""
+    data_list = list()
+    try:
+        with open(file_name, 'r', encoding=encoding) as f:
+            reader = csv.reader(f)
+            if batch is None:
+                for data in reader:
+                    data_list.append(data)
+            else:
+                i = 0
+                for data in reader:
+                    if batch[0] <= i < batch[1]:
+                        data_list.append(data)
+                    i += 1
+    except Exception as e:
+        print(e)
+    return data_list
+
+
 # --------------------Init Processing
 
 
@@ -137,8 +136,26 @@ def init_params_request():
     """Init parameters using in request"""
     for key in PARAMS_REQUEST.keys():
         try:
-            with open("data/" + key.lower() + ".txt", encoding='utf-8') as f:
+            with open("config/" + key.lower() + ".txt", encoding='utf-8') as f:
                 PARAMS_REQUEST[key] = f.readline().encode('utf-8').decode('latin1')
         except Exception as e:
             print(e)
             raise RuntimeError("Init process error.")
+
+
+def init_city_dict():
+    """Init city dict using .csv file"""
+    city_list = read_csv(file_name="config/page_num.csv")
+    CITY_INFO['city_num'] = len(city_list)
+    for info in city_list:
+        CITY_INFO['city_list'].append({
+            "name": info[0],
+            "page_num": info[1],
+            "dest_id": info[2]
+        })
+
+
+def init_processing():
+    """Init processing"""
+    init_params_request()
+    init_city_dict()

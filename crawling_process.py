@@ -13,7 +13,7 @@ from requests import Response
 from params_setting import *
 
 # ----------Init processing
-init_params_request()
+init_processing()
 
 
 # ----------Request and analysis
@@ -41,21 +41,5 @@ def xpath_analysis(response: Response, xpath_: Union[str, List[str]]) -> list:
     return results
 
 
-def get_city_page_num():
-    """Print cities' page number"""
-    nums = list()
-    for city in CITY_NAME:
-        PARAMS_URL['ss'] = city.encode('utf-8')
-        response = get_response(url=URL_BOOKING,
-                                params=PARAMS_URL)
-        print(response.url)
-        results = xpath_analysis(response, XPATH_HOTEL_PAGE_NUM)
-        print(results)
-        num: str = results[0][-1]
-        nums.append(int(num))
-        time.sleep(3)
-    print("CITY_HOTEL_NUM =", nums)
-
-
 if __name__ == "__main__":
-    get_city_page_num()
+    print(CITY_INFO)
