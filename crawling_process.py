@@ -2,15 +2,18 @@
 # @author  : Shuxin_Wang
 # @email   : shuxinwang662@gmail.com
 # @time    : 2023/3/24 
-# @function: the script is used to do something.
+# @function: the functions using for crawling process
 # @version : V1.0 
 #
+import re
 import time
+from concurrent.futures.thread import ThreadPoolExecutor
 from typing import Union, List
 import requests
 from lxml import etree
 from requests import Response
 from params_setting import *
+from queue import Queue
 
 # ----------Init processing
 init_processing()
@@ -76,6 +79,10 @@ def get_all_city_hotel():
     """Get all hotel in all city"""
     for city_in in CITY_INFO['city_list']:
         get_city_hotel(city_in)
+    data_list = read_csv("data/hotels_v2.csv")
+    for i in range(len(data_list)):
+        data_list[i].append(i)
+    write_csv("data/hotels.csv", data_list)
 
 
 def get_hotel_info(url_hotel: str) -> dict:
@@ -166,6 +173,126 @@ def get_all_hotel_info():
         time.sleep(10)
 
 
+def get_image_from_url(image_url: str, file_name: str):
+    """Get image from a image url"""
+    try:
+        response = get_response(image_url)
+    except Exception as e:
+        print(e)
+        raise RuntimeError("Get image error")
+    if response.status_code != 200:
+        raise RuntimeError
+    try:
+        with open(file_name + ".jpg", "wb") as f:
+            f.write(response.content)
+    except Exception as e:
+        print(e)
+        raise RuntimeError("Write image error")
+
+
+def get_page_image():
+    """Get hotels images from query page"""
+    start = 0
+    exp = re.compile(r"/square.+/")
+    while True:
+        read_data = read_csv("data/hotels.csv", batch=(start, start + BATCH_SETTING))
+        start += BATCH_SETTING
+        if len(read_data) == 0:
+            break
+        print(f"Loading images: {len(read_data)}")
+        err = 0
+        for data in read_data:
+            index = data[-1]
+            url_read = data[-2]
+            url_image = re.sub(exp, "/square500/", url_read)
+            try:
+                get_image_from_url(url_image, "data/image/" + index)
+            except RuntimeError:
+                write_csv("data/image_error.csv", [[index, url_image]])
+                err += 1
+        print(f"Success: {len(read_data) - err}, Error: {err}")
+        print()
+        time.sleep(10)
+
+
+class HotelImage:
+    """The class to record for crawling images info"""
+
+    def __init__(self, index_: str, id_: str, url_: str):
+        self.index_ = index_
+        self.id_ = id_
+        self.url_ = url_
+
+
+class ImageCrawling:
+    """The class to manage crawling images using multithread"""
+
+    def __init__(self, batch: Tuple[int, int], m_num: int = 10):
+        self.batch = batch
+        self.m_num = m_num
+        self.queue = Queue()
+
+    def set_batch(self, batch: Tuple[int, int]):
+        self.batch = batch
+
+    def set_num(self, m_num: int):
+        self.m_num = m_num
+
+    def init_queue(self):
+        while not self.queue.empty():
+            self.queue.get()
+        data_list = read_csv("data/info/image.csv")
+        for data in data_list:
+            if self.batch[0] <= int(data[0]) < self.batch[1]:
+                image_url = re.sub(r"/max.+/", "/max600/", data[1])
+                image_url = re.sub(r"/square.+/", "/square600/", image_url)
+                self.queue.put(HotelImage(data[0], data[2], image_url))
+
+    def __function__(self, cache_: Queue):
+        while not self.queue.empty():
+            entities: HotelImage = self.queue.get()
+            try:
+                get_image_from_url(entities.url_,
+                                   "data/info/image/" + str(self.batch[0]) + "/" + entities.index_ + "_" + entities.id_)
+            except RuntimeError:
+                cache_.put(entities)
+        self.queue.task_done()
+
+    def run(self):
+        self.init_queue()
+        cache_ = Queue()
+        start = time.time()
+        print(f"Batch: {self.batch}")
+        while True:
+            print(f"Images num: {self.queue.qsize()}, Threads: {self.m_num}")
+            with ThreadPoolExecutor(max_workers=self.m_num) as pool:
+                for i in range(self.m_num):
+                    pool.submit(self.__function__, cache_)
+            print(f"Error Images: {cache_.qsize()}")
+            while not cache_.empty():
+                entity: HotelImage = cache_.get()
+                self.queue.put(entity)
+                write_csv("data/info/image_error.csv", [[entity.index_, entity.id_, entity.url_]])
+            if self.queue.empty():
+                break
+            else:
+                print("Wait 30s to re-get error images")
+            time.sleep(30)
+        end = time.time()
+        print(f"Cost time: {end - start}s\n")
+        time.sleep(60)
+
+
+def get_all_images():
+    """Get all hotel images"""
+    crawling_process = ImageCrawling(batch=(0, 0), m_num=10)
+    for i in range(11):
+        crawling_process.set_batch((i * 1000, (i + 1) * 1000))
+        crawling_process.run()
+
+
 if __name__ == "__main__":
     # get_all_city_hotel()
-    get_all_hotel_info()
+    # get_all_hotel_info()
+    # get_page_image()
+    get_all_images()

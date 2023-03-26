@@ -53,7 +53,8 @@ PARAMS_URL_CITY_ID = {
 
 PARAMS_REQUEST = {
     "User-Agent": None,
-    "Cookie": None
+    "Cookie": None,
+    # add params here
 }
 """Parameters of request for *Booking*"""
 
