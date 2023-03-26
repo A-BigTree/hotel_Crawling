@@ -131,31 +131,38 @@ BATCH_SETTING = 100
 def get_all_hotel_info():
     """Get all information start by `Index_START`"""
     start = INDEX_START
+    index_ = INDEX_START
     while True:
         read_data = read_csv(file_name="data/hotels.csv",
                              batch=(start, start + BATCH_SETTING))
         start += BATCH_SETTING
         if len(read_data) == 0:
             break
-        for data_ in read_data:
-            href = data_[1]
-            index_ = data_[-1]
-            result_dict = get_hotel_info(href)
-            print(f"Index: {index_}, Hotel: {result_dict['name']}, Star: {result_dict['star']}")
-            print(f"City: ({result_dict['city']['pro']}, [{result_dict['city']['mun']}])")
-            write_csv("data/info/info.csv",
-                      [[index_, result_dict['name'], result_dict['city']['pro'], result_dict['city']['mun'],
-                        result_dict['addr'], result_dict['point'], len(result_dict['images']), result_dict['star']]])
-            print(f"Desc length: char({len(result_dict['desc'])})")
-            write_csv("data/info/desc.csv",
-                      [[index_, result_dict['desc']]])
-            print(f"Images number: {len(result_dict['images'])}")
-            image_li = list()
-            for image in result_dict['images']:
-                image_li.append([index_, image])
-            if len(image_li) > 0:
-                write_csv("data/info/image.csv", image_li)
-            print()
+        try:
+            for data_ in read_data:
+                href = data_[1]
+                index_ = data_[-1]
+                result_dict = get_hotel_info(href)
+                print(f"Index: {index_}, Hotel: {result_dict['name']}, Star: {result_dict['star']}")
+                print(f"City: ({result_dict['city']['pro']}, [{result_dict['city']['mun']}])")
+                write_csv("data/info/info.csv",
+                          [[index_, result_dict['name'], result_dict['city']['pro'], result_dict['city']['mun'],
+                            result_dict['addr'], result_dict['point'], len(result_dict['images']),
+                            result_dict['star']]])
+                print(f"Desc length: char({len(result_dict['desc'])})")
+                write_csv("data/info/desc.csv",
+                          [[index_, result_dict['desc']]])
+                print(f"Images number: {len(result_dict['images'])}")
+                image_li = list()
+                for image in result_dict['images']:
+                    image_li.append([index_, image])
+                if len(image_li) > 0:
+                    write_csv("data/info/image.csv", image_li)
+                print()
+        except Exception as e:
+            print(e)
+            start = int(index_)
+            time.sleep(120)
         time.sleep(10)
 
 
