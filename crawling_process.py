@@ -20,12 +20,12 @@ init_processing()
 
 
 # ----------Request and analysis
-def get_response(url: str, params: dict = None) -> Response:
+def get_response(url: str, params: dict = None, headers: dict = PARAMS_REQUEST) -> Response:
     """Get `Response` Object using URL and Request parameters"""
     try:
         response = requests.get(url=url,
                                 params=params,
-                                headers=PARAMS_REQUEST)
+                                headers=headers)
     except Exception as e:
         print(e)
         raise RuntimeError("Request error.")
@@ -34,6 +34,7 @@ def get_response(url: str, params: dict = None) -> Response:
 
 def xpath_analysis(response: Response, xpath_: Union[str, List[str]]) -> dict:
     """Analysis article from response using list of xpath"""
+    response.encoding = "utf-8"
     xpath_data = etree.HTML(response.text)
     if isinstance(xpath_, str):
         xpath_ = [xpath_]
@@ -289,10 +290,3 @@ def get_all_images():
     for i in range(11):
         crawling_process.set_batch((i * 1000, (i + 1) * 1000))
         crawling_process.run()
-
-
-if __name__ == "__main__":
-    # get_all_city_hotel()
-    # get_all_hotel_info()
-    # get_page_image()
-    get_all_images()
