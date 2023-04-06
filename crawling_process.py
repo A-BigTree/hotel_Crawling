@@ -69,7 +69,7 @@ def get_city_hotel(city_info: dict):
         for j in range(len(hotel_names)):
             csv_list.append([hotel_names[j], hotel_hrefs[j], city_name, offset, hotel_image[j]])
         offset += len(hotel_names)
-        write_csv(file_name="data/hotels_v2.csv",
+        write_csv(file_name="data/hotels.csv",
                   data=csv_list)
         print()
         time.sleep(3)
