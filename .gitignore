@@ -154,3 +154,5 @@ cython_debug/
 # data
 data/
 *.rar
+
+pretreatment.py
