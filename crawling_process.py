@@ -29,6 +29,8 @@ def get_response(url: str, params: dict = None, headers: dict = PARAMS_REQUEST) 
     except Exception as e:
         print(e)
         raise RuntimeError("Request error.")
+    if response.status_code != 200:
+        raise RuntimeError
     return response
 
 
@@ -86,10 +88,14 @@ def get_all_city_hotel():
     write_csv("data/hotels.csv", data_list)
 
 
-def get_hotel_info(url_hotel: str) -> dict:
+def get_hotel_info(url_hotel: str, index_: str) -> dict:
     """Get a hotel information to dict data"""
+    url_hotel = url_hotel.replace("#hotelTmpl", "")
     response = get_response(url_hotel)
     print(response.url)
+    response.encoding = "utf-8"
+    with open(f"data/info/html/{index_}.txt", "w", encoding="utf-8") as f:
+        f.write(response.text)
     results = xpath_analysis(response=response,
                              xpath_=[XPATH_HOTEL_CITY,
                                      XPATH_HOTEL_NAME,
@@ -150,7 +156,7 @@ def get_all_hotel_info():
             for data_ in read_data:
                 href = data_[1]
                 index_ = data_[-1]
-                result_dict = get_hotel_info(href)
+                result_dict = get_hotel_info(href, index_)
                 print(f"Index: {index_}, Hotel: {result_dict['name']}, Star: {result_dict['star']}")
                 print(f"City: ({result_dict['city']['pro']}, [{result_dict['city']['mun']}])")
                 write_csv("data/info/info.csv",
@@ -178,11 +184,8 @@ def get_image_from_url(image_url: str, file_name: str):
     """Get image from a image url"""
     try:
         response = get_response(image_url)
-    except Exception as e:
-        print(e)
+    except Exception:
         raise RuntimeError("Get image error")
-    if response.status_code != 200:
-        raise RuntimeError
     try:
         with open(file_name + ".jpg", "wb") as f:
             f.write(response.content)

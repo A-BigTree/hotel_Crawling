@@ -10,6 +10,6 @@ from crawling_process import *
 
 if __name__ == "__main__":
     # get_all_city_hotel()
-    # get_all_hotel_info()
+    get_all_hotel_info()
     # get_page_image()
-    get_all_images()
+    # get_all_images()
