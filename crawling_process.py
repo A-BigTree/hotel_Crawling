@@ -34,10 +34,9 @@ def get_response(url: str, params: dict = None, headers: dict = PARAMS_REQUEST) 
     return response
 
 
-def xpath_analysis(response: Response, xpath_: Union[str, List[str]]) -> dict:
-    """Analysis article from response using list of xpath"""
-    response.encoding = "utf-8"
-    xpath_data = etree.HTML(response.text)
+def xpath_analysis(text: str, xpath_: Union[str, List[str]]) -> dict:
+    """Analysis article from string using list of xpath"""
+    xpath_data = etree.HTML(text)
     if isinstance(xpath_, str):
         xpath_ = [xpath_]
     results = dict()
@@ -45,6 +44,23 @@ def xpath_analysis(response: Response, xpath_: Union[str, List[str]]) -> dict:
         result = xpath_data.xpath(xp)
         results[xp] = result
     return results
+
+
+def xpath_analysis_by_response(response: Response, xpath_: Union[str, List[str]]) -> dict:
+    """Analysis article from response using list of xpath"""
+    response.encoding = "utf-8"
+    return xpath_analysis(response.text, xpath_)
+
+
+def xpath_analysis_by_file(file: str, encoding: str, xpath_: Union[str, List[str]]) -> dict:
+    """Analysis article from file using list of xpath"""
+    try:
+        with open(file, "r", encoding=encoding) as f:
+            text = f.read()
+    except Exception as e:
+        print(e)
+        raise RuntimeError("Read file: %s error" % file)
+    return xpath_analysis(text, xpath_)
 
 
 def get_city_hotel(city_info: dict):
@@ -59,10 +75,10 @@ def get_city_hotel(city_info: dict):
         print(f"city: {city_name}, offset: {offset}")
         response = get_response(url=URL_BOOKING,
                                 params=PARAMS_URL_CITY_ID)
-        results = xpath_analysis(response=response,
-                                 xpath_=[XPATH_HOTEL_PAGE_NAME,
-                                         XPATH_HOTEL_PAGE_HREF,
-                                         XPATH_HOTEL_PAGE_IMAGE])
+        results = xpath_analysis_by_response(response=response,
+                                             xpath_=[XPATH_HOTEL_PAGE_NAME,
+                                                     XPATH_HOTEL_PAGE_HREF,
+                                                     XPATH_HOTEL_PAGE_IMAGE])
         hotel_names = results[XPATH_HOTEL_PAGE_NAME]
         hotel_hrefs = results[XPATH_HOTEL_PAGE_HREF]
         hotel_image = results[XPATH_HOTEL_PAGE_IMAGE]
@@ -96,14 +112,14 @@ def get_hotel_info(url_hotel: str, index_: str) -> dict:
     response.encoding = "utf-8"
     with open(f"data/info/html/{index_}.txt", "w", encoding="utf-8") as f:
         f.write(response.text)
-    results = xpath_analysis(response=response,
-                             xpath_=[XPATH_HOTEL_CITY,
-                                     XPATH_HOTEL_NAME,
-                                     XPATH_HOTEL_ADDRESS,
-                                     XPATH_HOTEL_POINT,
-                                     XPATH_HOTEL_IMAGES,
-                                     XPATH_HOTEL_DESC,
-                                     XPATH_HOTEL_STAR])
+    results = xpath_analysis_by_response(response=response,
+                                         xpath_=[XPATH_HOTEL_CITY,
+                                                 XPATH_HOTEL_NAME,
+                                                 XPATH_HOTEL_ADDRESS,
+                                                 XPATH_HOTEL_POINT,
+                                                 XPATH_HOTEL_IMAGES,
+                                                 XPATH_HOTEL_DESC,
+                                                 XPATH_HOTEL_STAR])
     city = results[XPATH_HOTEL_CITY]
     name = results[XPATH_HOTEL_NAME]
     address = results[XPATH_HOTEL_ADDRESS]
@@ -175,7 +191,8 @@ def get_all_hotel_info():
                 print()
         except Exception as e:
             print(e)
-            start = int(index_)
+            start = int(index_) + 1
+            write_csv("data/info/hotel_error.csv", [[index_]])
             time.sleep(120)
         time.sleep(10)
 
