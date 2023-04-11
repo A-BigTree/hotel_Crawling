@@ -52,7 +52,7 @@ def xpath_analysis_by_response(response: Response, xpath_: Union[str, List[str]]
     return xpath_analysis(response.text, xpath_)
 
 
-def xpath_analysis_by_file(file: str, encoding: str, xpath_: Union[str, List[str]]) -> dict:
+def xpath_analysis_by_file(file: str, xpath_: Union[str, List[str]], encoding: str = "utf-8") -> dict:
     """Analysis article from file using list of xpath"""
     try:
         with open(file, "r", encoding=encoding) as f:
