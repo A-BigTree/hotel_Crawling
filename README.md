@@ -208,21 +208,39 @@ PARAMS_URL_CITY_ID = {
 习惯使用`XPath`对网页进行解析，通用的请求解析函数如下：
 
 ```python
-def get_response(url: str, params: dict = None) -> Response:
+# ----------Request and analysis
+def get_response(url: str, params: dict = None, headers: dict = PARAMS_REQUEST) -> Response:
     """Get `Response` Object using URL and Request parameters"""
     try:
         response = requests.get(url=url,
                                 params=params,
-                                headers=PARAMS_REQUEST)
+                                headers=headers)
     except Exception as e:
         print(e)
         raise RuntimeError("Request error.")
+    if response.status_code != 200:
+        raise RuntimeError
     return response
 
 
-def xpath_analysis(response: Response, xpath_: Union[str, List[str]]) -> dict:
-    """Analysis article from response using list of xpath"""
-    xpath_data = etree.HTML(response.text)
+def get_html_element(text: str) -> _Element:
+    """Get `etree._Element` Object from a text"""
+    return etree.HTML(text)
+
+
+def get_html_element_by_file(file: str, encoding="utf-8") -> _Element:
+    """Get `etree._Element` Object from a file"""
+    try:
+        with open(file, "r", encoding=encoding) as f:
+            text = f.read()
+    except Exception as e:
+        print(e)
+        raise RuntimeError("Read file: %s error" % file)
+    return get_html_element(text)
+
+
+def xpath_analysis(xpath_data: _Element, xpath_: Union[str, List[str]]) -> dict:
+    """Analysis `etree._Element` Object using list of xpath"""
     if isinstance(xpath_, str):
         xpath_ = [xpath_]
     results = dict()
@@ -230,6 +248,23 @@ def xpath_analysis(response: Response, xpath_: Union[str, List[str]]) -> dict:
         result = xpath_data.xpath(xp)
         results[xp] = result
     return results
+
+
+def xpath_analysis_by_text(text: str, xpath_: Union[str, List[str]]) -> dict:
+    """Analysis article from string using list of xpath"""
+    xpath_data = get_html_element(text)
+    return xpath_analysis(xpath_data, xpath_)
+
+
+def xpath_analysis_by_response(response: Response, xpath_: Union[str, List[str]]) -> dict:
+    """Analysis article from response using list of xpath"""
+    response.encoding = "utf-8"
+    return xpath_analysis_by_text(response.text, xpath_)
+
+
+def xpath_analysis_by_file(file: str, xpath_: Union[str, List[str]], encoding: str = "utf-8") -> dict:
+    """Analysis article from file using list of xpath"""
+    return xpath_analysis(get_html_element_by_file(file, encoding), xpath_)
 ```
 
 ## 查询界面相关信息解析
