@@ -181,11 +181,11 @@ PARAMS_URL_CITY_NAME = {
 
 ## 基于城市ID的参数设置（推荐）
 
-具体参数含义与上面的类似，具体城市的`dest_id`在城市信息字典中`CITY_INFO`中
+具体参数含义与上面的类似，具体城市的`dest_id`在城市信息字典中`CITY_INFO`中，具体字段解释见上面的 [基于城市名称的参数设置](https://github.com/A-BigTree/hotel_Crawling#%E5%9F%BA%E4%BA%8E%E5%9F%8E%E5%B8%82%E5%90%8D%E7%A7%B0%E7%9A%84%E5%8F%82%E6%95%B0%E8%AE%BE%E7%BD%AE%E4%B8%8D%E7%A8%B3%E5%AE%9A%E4%B8%8D%E6%8E%A8%E8%8D%90)
 
 ```python
 PARAMS_URL_CITY_ID = {
-    "aid": 3976,
+    "aid": 3976,  # 访客ID，具体情况需要更新
     "lang": "zh-cn",
     "sb": 1,
     "src_elem": "sb",
